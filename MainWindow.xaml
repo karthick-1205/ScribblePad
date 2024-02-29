@@ -9,7 +9,8 @@
     <StackPanel>
         <Menu>
             <MenuItem Header="File">
-                <MenuItem Header="Save as Text" Click="Save_Click"/>
+                <MenuItem Header="Open Text" Click="OpenText_Click"/>
+                <MenuItem Header="Save as Text" Click="SaveText_Click"/>
             </MenuItem>
             <MenuItem Name="Undo" Click="Undo_Click">
                 <MenuItem.Icon>

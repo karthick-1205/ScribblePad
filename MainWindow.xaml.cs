@@ -66,7 +66,7 @@ namespace ScribblePad {
          }
       }
 
-      private void Save_Click (object sender, RoutedEventArgs e) {
+      private void SaveText_Click (object sender, RoutedEventArgs e) {
          SaveFileDialog saveText = new ();
          if (saveText.ShowDialog () == true) {
             using StreamWriter sw = new (saveText.FileName);
@@ -75,6 +75,26 @@ namespace ScribblePad {
                sw.WriteLine ("end");
             }
          }
+      }
+
+      private void OpenText_Click (object sender, RoutedEventArgs e) {
+         OpenFileDialog openText = new ();
+         string str;
+         if (openText.ShowDialog () == true) {
+            using StreamReader sr = new (openText.FileName);
+            while ((str = sr.ReadLine ()) != null) {
+               if (str == "end") {
+                  scribblePointsList.Add (new PointCollection (scribblePoints));
+                  scribblePoints = new PointCollection ();
+               } else {
+                  string[] pt = str.Split (',');
+                  double x = double.Parse (pt[0]);
+                  double y = double.Parse (pt[1]);
+                  scribblePoints.Add (new Point (x, y));
+               }
+            }
+         }
+         InvalidateVisual ();
       }
    }
 }
