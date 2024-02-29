@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Data\redo.png" />
+    <None Remove="Data\undo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Data\redo.png" />
+    <Resource Include="Data\undo.png" />
+  </ItemGroup>
+
+</Project>
