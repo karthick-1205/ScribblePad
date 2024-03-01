@@ -10,7 +10,9 @@
         <Menu>
             <MenuItem Header="File">
                 <MenuItem Header="Open Text" Click="OpenText_Click"/>
+                <MenuItem Header="Open Binary" Click="OpenBinary_Click"/>
                 <MenuItem Header="Save as Text" Click="SaveText_Click"/>
+                <MenuItem Header="Save as Binary" Click="SaveBinary_Click"/>
             </MenuItem>
             <MenuItem Name="Undo" Click="Undo_Click">
                 <MenuItem.Icon>

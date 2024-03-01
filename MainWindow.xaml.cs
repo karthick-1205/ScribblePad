@@ -96,5 +96,39 @@ namespace ScribblePad {
          }
          InvalidateVisual ();
       }
+
+      private void SaveBinary_Click (object sender, RoutedEventArgs e) {
+         SaveFileDialog saveBinary = new ();
+         if (saveBinary.ShowDialog () == true) {
+            BinaryWriter bw = new (File.Open (saveBinary.FileName, FileMode.Create));
+            bw.Write (scribblePointsList.Count);
+            foreach (var ptList in scribblePointsList) {
+               bw.Write (ptList.Count);
+               foreach (var pt in ptList) {
+                  bw.Write (pt.X);
+                  bw.Write (pt.Y);
+               }
+            }
+         }
+      }
+
+      private void OpenBinary_Click (object sender, RoutedEventArgs e) {
+         OpenFileDialog openBinary = new ();
+         if(openBinary.ShowDialog () == true) {
+            BinaryReader br = new (File.Open (openBinary.FileName, FileMode.Open));
+            int scribbleCount = br.ReadInt32 ();
+            for(int i = 0; i<scribbleCount; i++) {
+               int pointsCount = br.ReadInt32 ();
+               PointCollection points = new PointCollection ();
+               for (int j = 0; j < pointsCount; j++) {
+                  double x = br.ReadDouble();
+                  double y = br.ReadDouble();
+                  points.Add (new Point (x, y));
+               }
+               scribblePointsList.Add (points);
+            }
+            InvalidateVisual();
+         }
+      }
    }
 }
