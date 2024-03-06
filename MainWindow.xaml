@@ -7,6 +7,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Background="Transparent">
     <StackPanel>
+        <StackPanel.Resources>
+            <Style TargetType="ToggleButton">
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="VerticalAlignment" Value="Top"/>
+                <Setter Property="Height" Value="50"/>
+                <Setter Property="Width" Value="50"/>
+            </Style>
+        </StackPanel.Resources>
         <Menu>
             <MenuItem Header="File">
                 <MenuItem Header="Open Text" Click="OpenText_Click"/>
@@ -25,5 +33,17 @@
                 </MenuItem.Icon>
             </MenuItem>
         </Menu>
+        <ToggleButton Name="scribble" Click="Scribble_Click" >
+            <Image Source="..\Data\scribble.jpg"/>
+        </ToggleButton>
+        <ToggleButton Name="line" Click="Line_Click">
+            <Image Source="..\Data\line.jpg"/>
+        </ToggleButton>
+        <ToggleButton Name="rect" Click="Rect_Click">
+            <Image Source="..\Data\rectangle.jpg"/>
+        </ToggleButton>
+        <ToggleButton Name="cline" Click="Cline_Click">
+            <Image Source="..\Data\clines.jpg"/>
+        </ToggleButton>
     </StackPanel>
 </Window>

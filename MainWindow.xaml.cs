@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -10,33 +11,74 @@ namespace ScribblePad {
    /// </summary>
    public partial class MainWindow : Window {
       Pen pen = new (Brushes.White, 2);
+      Shapes mShapes = null;
       PointCollection scribblePoints = new ();
       List<PointCollection> scribblePointsList = new ();
-      Stack<PointCollection> scribblePointsStack = new ();
+      Stack<Shapes> shapesStack = new ();
+      List<Shapes> shapesList = new ();
+      ToggleButton selectedItem = new ();
+
       public MainWindow () => InitializeComponent ();
 
       protected override void OnRender (DrawingContext dc) {
          base.OnRender (dc);
-         foreach (PointCollection point in scribblePointsList) {
-            for (int i = 0; i < point.Count - 1; i++) {
-               dc.DrawLine (pen, point[i], point[i + 1]);
+         foreach (var shape in shapesList) {
+            switch (shape) {
+               case Scribble scribble:
+                  for (int i = 0; i < scribble.PointList.Count - 1; i++) dc.DrawLine (pen, scribble.PointList[i], scribble.PointList[i + 1]);
+                  break;
+               case Line line:
+                  dc.DrawLine (pen, line.PointList[0], line.PointList[^1]);
+                  break;
+               case Rectangle rect:
+                  Point pt1 = rect.PointList[0];
+                  Point pt2 = rect.PointList[1];
+                  dc.DrawRectangle (null, pen, new (pt1, pt2));
+                  break;
+               case ConnectedLines clines:
+                  for (int i = 0; i < clines.PointList.Count - 1; i++) dc.DrawLine (pen, clines.PointList[i], clines.PointList[i + 1]);
+                  break;
             }
          }
-         for (int i = 0; i < scribblePoints.Count - 1; i++)
-            dc.DrawLine (pen, scribblePoints[i], scribblePoints[i + 1]);
       }
 
       protected override void OnMouseLeftButtonDown (MouseButtonEventArgs e) {
          if (e.LeftButton == MouseButtonState.Pressed) {
             Point pt = e.GetPosition (this);
-            scribblePoints.Add (pt);
+            switch (selectedItem.Name) {
+               case "scribble":
+                  mShapes = new Scribble ();
+                  mShapes.PointList.Add (pt);
+                  shapesList.Add (mShapes);
+                  break;
+               case "line":
+                  mShapes = new Line ();
+                  mShapes.PointList.Add (pt);
+                  mShapes.PointList.Add (pt);
+                  shapesList.Add (mShapes);
+                  break;
+               case "rect":
+                  mShapes = new Rectangle ();
+                  mShapes.PointList.Add (pt);
+                  mShapes.PointList.Add (pt);
+                  shapesList.Add (mShapes);
+                  break;
+               case "cline":
+                  mShapes = new ConnectedLines ();
+                  mShapes.PointList.Add (pt);
+                  mShapes.PointList.Add (pt);
+                  shapesList.Add (mShapes);
+                  break;
+            }
          }
       }
 
       protected override void OnMouseMove (MouseEventArgs e) {
          if (e.LeftButton == MouseButtonState.Pressed) {
             Point pt = e.GetPosition (this);
-            scribblePoints.Add (pt);
+            if (mShapes is Scribble) mShapes.PointList.Add (pt);
+            else mShapes.PointList[^1] = pt;
+            shapesList[^1] = mShapes;
             InvalidateVisual ();
          }
       }
@@ -44,24 +86,24 @@ namespace ScribblePad {
       protected override void OnMouseLeftButtonUp (MouseButtonEventArgs e) {
          if (e.LeftButton == MouseButtonState.Released) {
             Point pt = e.GetPosition (this);
-            scribblePoints.Add (pt);
-            scribblePointsList.Add (scribblePoints);
-            scribblePoints = new ();
+            if (mShapes is Scribble) mShapes.PointList.Add (pt);
+            else mShapes.PointList[^1] = pt;
+            shapesList[^1] = mShapes;
+            InvalidateVisual ();
          }
       }
 
       private void Undo_Click (object sender, RoutedEventArgs e) {
-         if (scribblePointsList.Count > 0) {
-            var lastScribble = scribblePointsList.Last ();
-            scribblePointsStack.Push (lastScribble);
-            scribblePointsList.Remove (lastScribble);
+         if (shapesList.Count > 0) {
+            shapesStack.Push (shapesList.Last ());
+            shapesList.RemoveAt (shapesList.Count - 1);
             InvalidateVisual ();
          }
       }
 
       private void Redo_Click (object sender, RoutedEventArgs e) {
-         if (scribblePointsStack.Count > 0) {
-            scribblePointsList.Add (scribblePointsStack.Pop ());
+         if (shapesStack.Count > 0) {
+            shapesList.Add (shapesStack.Pop ());
             InvalidateVisual ();
          }
       }
@@ -114,21 +156,28 @@ namespace ScribblePad {
 
       private void OpenBinary_Click (object sender, RoutedEventArgs e) {
          OpenFileDialog openBinary = new ();
-         if(openBinary.ShowDialog () == true) {
+         if (openBinary.ShowDialog () == true) {
             BinaryReader br = new (File.Open (openBinary.FileName, FileMode.Open));
             int scribbleCount = br.ReadInt32 ();
-            for(int i = 0; i<scribbleCount; i++) {
+            for (int i = 0; i < scribbleCount; i++) {
                int pointsCount = br.ReadInt32 ();
                PointCollection points = new PointCollection ();
                for (int j = 0; j < pointsCount; j++) {
-                  double x = br.ReadDouble();
-                  double y = br.ReadDouble();
+                  double x = br.ReadDouble ();
+                  double y = br.ReadDouble ();
                   points.Add (new Point (x, y));
                }
                scribblePointsList.Add (points);
             }
-            InvalidateVisual();
+            InvalidateVisual ();
          }
       }
+      private void Scribble_Click (object sender, RoutedEventArgs e) => selectedItem.Name = "scribble";
+
+      private void Line_Click (object sender, RoutedEventArgs e) => selectedItem.Name = "line";
+
+      private void Rect_Click (object sender, RoutedEventArgs e) => selectedItem.Name = "rect";
+
+      private void Cline_Click (object sender, RoutedEventArgs e) => selectedItem.Name = "cline";
    }
 }

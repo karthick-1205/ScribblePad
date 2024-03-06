@@ -9,11 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\clines.jpg" />
+    <None Remove="Data\Line.jpg" />
+    <None Remove="Data\rectangle.jpg" />
     <None Remove="Data\redo.png" />
+    <None Remove="Data\scribble.jpg" />
     <None Remove="Data\undo.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Data\clines.jpg" />
+    <Resource Include="Data\line.jpg" />
+    <Resource Include="Data\rectangle.jpg" />
+    <Resource Include="Data\scribble.jpg" />
     <Resource Include="Data\redo.png" />
     <Resource Include="Data\undo.png" />
   </ItemGroup>
