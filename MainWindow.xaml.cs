@@ -134,6 +134,8 @@ namespace ScribblePad {
 
       private void OpenText_Click (object sender, RoutedEventArgs e) {
          OpenFileDialog openText = new ();
+         shapesList.Clear ();
+         shapesStack.Clear ();
          string str;
          if (openText.ShowDialog () == true) {
             using StreamReader sr = new (openText.FileName);
