@@ -11,7 +11,7 @@ namespace ScribblePad {
    /// </summary>
    public partial class MainWindow : Window {
       Pen pen = new (Brushes.White, 2);
-      Shapes mShapes = null;
+      Shapes mShapes = new ();
       List<PointCollection> scribblePointsList = new ();
       Stack<Shapes> shapesStack = new ();
       List<Shapes> shapesList = new ();
@@ -75,8 +75,11 @@ namespace ScribblePad {
       protected override void OnMouseMove (MouseEventArgs e) {
          if (e.LeftButton == MouseButtonState.Pressed) {
             Point pt = e.GetPosition (this);
-            if (mShapes is Scribble) mShapes.PointList.Add (pt);
-            else mShapes.PointList[^1] = pt;
+            if (mShapes is Scribble) {
+               if (mShapes.PointList.Count > 0) mShapes.PointList.Add (pt);
+            } else {
+               if (mShapes.PointList.Count > 0) mShapes.PointList[^1] = pt;
+            }
             shapesList[^1] = mShapes;
             InvalidateVisual ();
          }
@@ -84,9 +87,9 @@ namespace ScribblePad {
 
       protected override void OnMouseLeftButtonUp (MouseButtonEventArgs e) {
          if (e.LeftButton == MouseButtonState.Released) {
+            if (mShapes == null || mShapes.PointList.Count == 0) return;
             Point pt = e.GetPosition (this);
-            if (mShapes is Scribble) mShapes.PointList.Add (pt);
-            else mShapes.PointList[^1] = pt;
+            mShapes.PointList[^1] = pt;
             shapesList[^1] = mShapes;
             InvalidateVisual ();
          }
@@ -108,7 +111,7 @@ namespace ScribblePad {
       }
 
       private void SaveText_Click (object sender, RoutedEventArgs e) {
-            SaveFileDialog saveText = new () {
+         SaveFileDialog saveText = new () {
             FileName = "Untitled.txt",
             Filter = "Text files (*.txt)|*.txt"
          };
