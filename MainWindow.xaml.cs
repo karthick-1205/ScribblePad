@@ -12,7 +12,6 @@ namespace ScribblePad {
    public partial class MainWindow : Window {
       Pen pen = new (Brushes.White, 2);
       Shapes mShapes = null;
-      PointCollection scribblePoints = new ();
       List<PointCollection> scribblePointsList = new ();
       Stack<Shapes> shapesStack = new ();
       List<Shapes> shapesList = new ();
@@ -28,7 +27,7 @@ namespace ScribblePad {
                   for (int i = 0; i < scribble.PointList.Count - 1; i++) dc.DrawLine (pen, scribble.PointList[i], scribble.PointList[i + 1]);
                   break;
                case Line line:
-                  dc.DrawLine (pen, line.PointList[0], line.PointList[^1]);
+                  dc.DrawLine (pen, line.PointList[0], line.PointList[1]);
                   break;
                case Rectangle rect:
                   Point pt1 = rect.PointList[0];
@@ -109,12 +108,23 @@ namespace ScribblePad {
       }
 
       private void SaveText_Click (object sender, RoutedEventArgs e) {
-         SaveFileDialog saveText = new ();
+            SaveFileDialog saveText = new () {
+            FileName = "Untitled.txt",
+            Filter = "Text files (*.txt)|*.txt"
+         };
          if (saveText.ShowDialog () == true) {
             using StreamWriter sw = new (saveText.FileName);
-            foreach (var ptList in scribblePointsList) {
-               foreach (var pt in ptList) { sw.WriteLine (pt.ToString ()); }
-               sw.WriteLine ("end");
+            foreach (var s in shapesList) {
+               var t = s.ToString ();
+               string[] parts = t!.Split ('.');
+               t = parts[1];
+               sw.Write (t);
+               foreach (var v in s.PointList) {
+                  sw.Write (",");
+                  sw.Write (v.ToString ());
+               }
+               sw.Write (",");
+               sw.WriteLine ();
             }
          }
       }
@@ -124,15 +134,47 @@ namespace ScribblePad {
          string str;
          if (openText.ShowDialog () == true) {
             using StreamReader sr = new (openText.FileName);
-            while ((str = sr.ReadLine ()) != null) {
-               if (str == "end") {
-                  scribblePointsList.Add (new PointCollection (scribblePoints));
-                  scribblePoints = new PointCollection ();
-               } else {
-                  string[] pt = str.Split (',');
-                  double x = double.Parse (pt[0]);
-                  double y = double.Parse (pt[1]);
-                  scribblePoints.Add (new Point (x, y));
+            while ((str = sr.ReadLine ()!) != null) {
+               str = str.TrimEnd (',');
+               if (str.StartsWith ("S")) {
+                  string[] values = str.Split (',');
+                  mShapes = new Scribble ();
+                  for (int i = 1; i < values.Length - 1; i += 2) {
+                     double x1 = double.Parse (values[i]);
+                     double y1 = double.Parse (values[i + 1]);
+                     mShapes.PointList.Add (new Point (x1, y1));
+                  }
+                  shapesList.Add (mShapes);
+               } else if (str.StartsWith ("L")) {
+                  string[] values = str.Split (',');
+                  double x1 = double.Parse (values[1]);
+                  double y1 = double.Parse (values[2]);
+                  double x2 = double.Parse (values[3]);
+                  double y2 = double.Parse (values[4]);
+                  mShapes = new Line ();
+                  mShapes.PointList.Add (new Point (x1, y1));
+                  mShapes.PointList.Add (new Point (x2, y2));
+                  shapesList.Add (mShapes);
+               } else if (str.StartsWith ("C")) {
+                  string[] values = str.Split (',');
+                  double x1 = double.Parse (values[1]);
+                  double y1 = double.Parse (values[2]);
+                  double x2 = double.Parse (values[3]);
+                  double y2 = double.Parse (values[4]);
+                  mShapes = new ConnectedLines ();
+                  mShapes.PointList.Add (new Point (x1, y1));
+                  mShapes.PointList.Add (new Point (x2, y2));
+                  shapesList.Add (mShapes);
+               } else if (str.StartsWith ("R")) {
+                  string[] values = str.Split (',');
+                  double x1 = double.Parse (values[1]);
+                  double y1 = double.Parse (values[2]);
+                  double x2 = double.Parse (values[3]);
+                  double y2 = double.Parse (values[4]);
+                  mShapes = new Rectangle ();
+                  mShapes.PointList.Add (new Point (x1, y1));
+                  mShapes.PointList.Add (new Point (x2, y2));
+                  shapesList.Add (mShapes);
                }
             }
          }
@@ -140,7 +182,10 @@ namespace ScribblePad {
       }
 
       private void SaveBinary_Click (object sender, RoutedEventArgs e) {
-         SaveFileDialog saveBinary = new ();
+         SaveFileDialog saveBinary = new () {
+            FileName = "Untitled.bin",
+            Filter = "Binary files (*.bin)|*.bin"
+         };
          if (saveBinary.ShowDialog () == true) {
             BinaryWriter bw = new (File.Open (saveBinary.FileName, FileMode.Create));
             bw.Write (scribblePointsList.Count);
