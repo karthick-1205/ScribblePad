@@ -192,11 +192,17 @@ namespace ScribblePad {
             Filter = "Binary files (*.bin)|*.bin"
          };
          if (saveBinary.ShowDialog () == true) {
-            BinaryWriter bw = new (File.Open (saveBinary.FileName, FileMode.Create));
-            bw.Write (scribblePointsList.Count);
-            foreach (var ptList in scribblePointsList) {
-               bw.Write (ptList.Count);
-               foreach (var pt in ptList) {
+            using BinaryWriter bw = new (File.Open (saveBinary.FileName, FileMode.Create));
+            bw.Write (shapesList.Count);
+            foreach (var shape in shapesList) {
+               switch (shape) {
+                  case Scribble: bw.Write (1); break;
+                  case Line: bw.Write (2); break;
+                  case Rectangle: bw.Write (3); break;
+                  case ConnectedLines: bw.Write (4); break;
+               }
+               bw.Write (shape.PointList.Count);
+               foreach (Point pt in shape.PointList) {
                   bw.Write (pt.X);
                   bw.Write (pt.Y);
                }
@@ -208,20 +214,27 @@ namespace ScribblePad {
          OpenFileDialog openBinary = new ();
          if (openBinary.ShowDialog () == true) {
             BinaryReader br = new (File.Open (openBinary.FileName, FileMode.Open));
-            int scribbleCount = br.ReadInt32 ();
-            for (int i = 0; i < scribbleCount; i++) {
+            int shapeCount = br.ReadInt32 ();
+            for (int i = 0; i < shapeCount; i++) {
+               int num = br.ReadInt32 ();
+               switch (num) {
+                  case 1: mShapes = new Scribble (); break;
+                  case 2: mShapes = new Line (); break;
+                  case 3: mShapes = new Rectangle (); break;
+                  case 4: mShapes = new ConnectedLines (); break;
+               }
                int pointsCount = br.ReadInt32 ();
-               PointCollection points = new PointCollection ();
                for (int j = 0; j < pointsCount; j++) {
                   double x = br.ReadDouble ();
                   double y = br.ReadDouble ();
-                  points.Add (new Point (x, y));
+                  mShapes.PointList.Add (new Point (x, y));
                }
-               scribblePointsList.Add (points);
+               shapesList.Add (mShapes);
             }
             InvalidateVisual ();
          }
       }
+
       private void Scribble_Click (object sender, RoutedEventArgs e) => selectedItem.Name = "scribble";
 
       private void Line_Click (object sender, RoutedEventArgs e) => selectedItem.Name = "line";
