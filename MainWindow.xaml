@@ -17,32 +17,32 @@
         </StackPanel.Resources>
         <Menu>
             <MenuItem Header="File">
-                <MenuItem Header="Open Text" Click="OpenText_Click"/>
-                <MenuItem Header="Open Binary" Click="OpenBinary_Click"/>
-                <MenuItem Header="Save as Text" Click="SaveText_Click"/>
-                <MenuItem Header="Save as Binary" Click="SaveBinary_Click"/>
+                <MenuItem Header="Open Text" Click="OnOpenTextClicked"/>
+                <MenuItem Header="Open Binary" Click="OnOpenBinaryClicked"/>
+                <MenuItem Header="Save as Text" Click="OnSaveTextClicked"/>
+                <MenuItem Header="Save as Binary" Click="OnSaveBinaryClicked"/>
             </MenuItem>
-            <MenuItem Name="Undo" Click="Undo_Click">
+            <MenuItem Name="Undo" Click="OnUndoClicked">
                 <MenuItem.Icon>
                     <Image Source="..\Data\undo.png" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Name="Redo" Click="Redo_Click">
+            <MenuItem Name="Redo" Click="OnRedoClicked">
                 <MenuItem.Icon>
                     <Image Source="..\Data\redo.png"/>
                 </MenuItem.Icon>
             </MenuItem>
         </Menu>
-        <ToggleButton Name="scribble" Click="Scribble_Click" >
+        <ToggleButton Name="scribble" Click="OnScribbleClicked" >
             <Image Source="..\Data\scribble.jpg"/>
         </ToggleButton>
-        <ToggleButton Name="line" Click="Line_Click">
+        <ToggleButton Name="line" Click="OnLineClicked">
             <Image Source="..\Data\line.jpg"/>
         </ToggleButton>
-        <ToggleButton Name="rect" Click="Rect_Click">
+        <ToggleButton Name="rect" Click="OnRectClicked">
             <Image Source="..\Data\rectangle.jpg"/>
         </ToggleButton>
-        <ToggleButton Name="cline" Click="Cline_Click">
+        <ToggleButton Name="cline" Click="OnClineClicked">
             <Image Source="..\Data\clines.jpg"/>
         </ToggleButton>
     </StackPanel>

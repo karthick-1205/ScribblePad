@@ -1,7 +1,7 @@
 ﻿using System.Windows.Media;
 namespace ScribblePad {
    public class Shapes {
-      public PointCollection PointList = new ();
+      public PointCollection mPointList = new ();
    }
 
    public class Scribble : Shapes { }
