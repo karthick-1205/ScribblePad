@@ -114,12 +114,18 @@ namespace ScribblePad {
          OpenFileDialog openText = new ();
          mShapesList.Clear ();
          mShapesStack.Clear ();
-         string str;
+         string text;
          if (openText.ShowDialog () == true) {
             using StreamReader sr = new (openText.FileName);
-            while ((str = sr.ReadLine ()!) != null) {
-               str = str.TrimEnd (',');
-               Shapes (str);
+            string extension = Path.GetExtension (openText.FileName);
+            if (extension != ".txt") {
+               MessageBox.Show ("Unsupported file format");
+               mInvalidFile = true;
+            }
+            if (mInvalidFile) { OnOpenTextClicked (sender, e); }
+            while ((text = sr.ReadLine ()!) != null) {
+               text = text.TrimEnd (',');
+               Shapes (text);
             }
          }
          InvalidateVisual ();
@@ -130,6 +136,12 @@ namespace ScribblePad {
          OpenFileDialog openBinary = new ();
          if (openBinary.ShowDialog () == true) {
             BinaryReader br = new (File.Open (openBinary.FileName, FileMode.Open));
+            string extension = Path.GetExtension (openBinary.FileName);
+            if (extension != ".bin") {
+               MessageBox.Show ("Unsupported file format");
+               mInvalidFile = true;
+            }
+            if (mInvalidFile) { OnOpenBinaryClicked (sender, e); }
             int shapeCount = br.ReadInt32 ();
             for (int i = 0; i < shapeCount; i++) {
                int num = br.ReadInt32 ();
@@ -293,6 +305,7 @@ namespace ScribblePad {
       Stack<Shapes> mShapesStack = new ();
       List<Shapes> mShapesList = new ();
       ToggleButton mSelectedItem = new ();
+      bool mInvalidFile;
       #endregion
    }
 }
